@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git pull') {
+            steps {
+                git branch: 'main', credentialsId: 'github', url: 'https://github.com/veelash27/demo-project.git'
+            }
+        }
+        stage('send the git file to ansible server') {
+            steps {
+                  sshPublisher(publishers: [sshPublisherDesc(configName: 'jenkins', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'rsync -avh /var/lib/jenkins/workspace/project-1/*.html  root@172.31.82.74:/opt/', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/opt/index.html', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'var/lib/jenkins/workspace/project-1/*.html')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)]) }
+            }
+        stage('running ansible playbook') {
+            steps {
+                  sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'ansible-playbook sourcecode/playbook.yml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)]) 
+                
+            }
+        }
+    }
+}
